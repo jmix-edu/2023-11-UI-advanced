@@ -7,6 +7,11 @@
                   class="com.company.jmixpm.entity.User">
             <fetchPlan extends="_base"/>
             <loader/>
+
+        </instance>
+        <instance id="addressDc" class="com.company.jmixpm.entity.Address">
+            <fetchPlan extends="_base"/>
+            <loader id="addressDl"/>
         </instance>
     </data>
     <actions>
