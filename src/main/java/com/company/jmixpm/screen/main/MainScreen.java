@@ -1,19 +1,25 @@
 package com.company.jmixpm.screen.main;
 
 import com.company.jmixpm.app.TaskService;
+import com.company.jmixpm.app.TasksCounterChangedEvent;
 import com.company.jmixpm.entity.Project;
 import com.company.jmixpm.entity.Task;
+import io.jmix.core.DataManager;
+import io.jmix.core.LoadContext;
+import io.jmix.core.Metadata;
 import io.jmix.ui.Notifications;
 import io.jmix.ui.ScreenBuilders;
 import io.jmix.ui.ScreenTools;
 import io.jmix.ui.action.Action;
 import io.jmix.ui.component.*;
 import io.jmix.ui.component.mainwindow.Drawer;
+import io.jmix.ui.component.mainwindow.SideMenu;
 import io.jmix.ui.icon.JmixIcon;
 import io.jmix.ui.model.CollectionLoader;
 import io.jmix.ui.navigation.Route;
 import io.jmix.ui.screen.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 
 import java.time.LocalDateTime;
 
@@ -50,6 +56,12 @@ public class MainScreen extends Screen implements Window.HasWorkArea {
     private MessageBundle messageBundle;
     @Autowired
     private ScreenBuilders screenBuilders;
+    @Autowired
+    private DataManager dataManager;
+    @Autowired
+    private Metadata metadata;
+    @Autowired
+    private SideMenu sideMenu;
 
     @Override
     public AppWorkArea getWorkArea() {
@@ -72,7 +84,9 @@ public class MainScreen extends Screen implements Window.HasWorkArea {
                 UiControllerUtils.getScreenContext(this).getScreens());
 
         screenTools.handleRedirect();
+        updateTaskCount();
     }
+
 
     @Subscribe("refresh")
     public void onRefresh(final Action.ActionPerformedEvent event) {
@@ -84,7 +98,7 @@ public class MainScreen extends Screen implements Window.HasWorkArea {
     public void onAddTask(final Action.ActionPerformedEvent event) {
         if (projectSelector.getValue() == null
                 || nameSelector.getValue() == null
-                || dateSelector.getValue() == null){
+                || dateSelector.getValue() == null) {
             notifications.create()
                     .withCaption(messageBundle.getMessage("validation.fieldsNotFilled.message"))
                     .withType(Notifications.NotificationType.WARNING)
@@ -108,7 +122,7 @@ public class MainScreen extends Screen implements Window.HasWorkArea {
     @Subscribe("tasksCalendar")
     public void onTasksCalendarCalendarEventClick(final Calendar.CalendarEventClickEvent<LocalDateTime> event) {
         Task task = (Task) event.getEntity();
-        if (task == null){
+        if (task == null) {
             return;
         }
 
@@ -124,6 +138,16 @@ public class MainScreen extends Screen implements Window.HasWorkArea {
         });
 
         screen.show();
-
     }
+
+    @EventListener
+    private void taskChanged(TasksCounterChangedEvent event) {
+        updateTaskCount();
+    }
+
+    private void updateTaskCount() {
+        long count = dataManager.getCount(new LoadContext<>(metadata.getClass(Task.class)));
+        sideMenu.getMenuItemNN("Task_.browse").setBadgeText(count + "");
+    }
+
 }
