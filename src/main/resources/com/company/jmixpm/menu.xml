@@ -11,6 +11,7 @@
         <item screen="City-simple.browse" caption="msg://com.company.jmixpm.screen.city/citySimpleBrowse.menu"/>
         <item screen="ProgrammaticProjectBrowse"
               caption="msg://com.company.jmixpm/menu_config.ProgrammaticProjectBrowse"/>
+        <item screen="SandboxScreen" caption="msg://com.company.jmixpm.screen.sandbox/sandboxScreen.caption"/>
     </menu>
 
 </menu-config>
